@@ -14,6 +14,18 @@ module advancedBadgeMain(
 );
 
 // Instantiate Memory
+/*
+module mem (
+	address_a,
+	address_b,
+	clock,
+	data_a,
+	data_b,
+	wren_a,
+	wren_b,
+	q_a,
+	q_b);
+*/
 wire [7:0] core_1_mem_add;
 wire [7:0] core_2_mem_add;
 wire [31:0] core_1_mem_data;
@@ -68,7 +80,16 @@ case(core_control)
 	begin
 		which_core = 1'b0;
 		g_out = core_1_g_out;
-		r_out = core_1_r_out;
+		case (r_control)
+			5'd24: r_out = {15'd0, arb_core_1_in}; // 5'b11000
+			5'd25: r_out = {15'd0, arb_core_1_out};// 5'b11001
+			5'd26: r_out = core_1_mem_out[31:16];  // 5'b11010
+			5'd27: r_out = core_1_mem_out[15:0];	// 5'b11011
+			5'd28: r_out = core_1_mem_data[31:16];	// 5'b11100
+			5'd29: r_out = core_1_mem_data[15:0];	// 5'b11101
+			5'd30: r_out = {8'd0, core_1_mem_add};	// 5'b11110
+			default: r_out = core_1_r_out;
+		endcase
 		reg_w_en = core_1_reg_w_en;
 		mem_wren = core_1_mem_wren;
 		has_lock = arb_core_1_out;
@@ -77,7 +98,16 @@ case(core_control)
 	begin
 		which_core = 1'b1;
 		g_out = core_2_g_out;
-		r_out = core_2_r_out;
+		case (r_control)
+			5'd24: r_out = {15'd0, arb_core_2_in};
+			5'd25: r_out = {15'd0, arb_core_2_out};
+			5'd26: r_out = core_2_mem_out[31:16];
+			5'd27: r_out = core_2_mem_out[15:0];
+			5'd28: r_out = core_2_mem_data[31:16];
+			5'd29: r_out = core_2_mem_data[15:0];
+			5'd30: r_out = {8'd0, core_2_mem_add};
+			default: r_out = core_2_r_out;
+		endcase
 		reg_w_en = core_2_reg_w_en;
 		mem_wren = core_2_mem_wren;
 		has_lock = arb_core_2_out;

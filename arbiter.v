@@ -46,25 +46,25 @@ begin
 end
 
 // What happens in each state?
-always@(posedge clk or negedge rst)
+always@(*)
 begin
 	if (rst == 1'b0)
 	begin
-		core_1_out <= 1'b0;
-		core_2_out <= 1'b0;
+		core_1_out = 1'b0;
+		core_2_out = 1'b0;
 	end
 	else
 	begin
 	case(S)
 		lock_1: 
 		begin
-			core_1_out <= 1'b1;
-			core_2_out <= 1'b0;
+			core_1_out = 1'b1;
+			core_2_out = 1'b0;
 		end
 		lock_2:
 		begin
-			core_1_out <= 1'b0;
-			core_2_out <= 1'b1;
+			core_1_out = 1'b0;
+			core_2_out = 1'b1;
 		end
 	endcase
 	end

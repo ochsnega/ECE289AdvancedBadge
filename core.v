@@ -82,6 +82,7 @@ parameter FSTART = 7'd0, 					// 7'b0000000
 			 DECIDE_BR = 7'd42,				// 7'b0101010
 			 PRE_FETCH = 7'd43,				// 7'b0101011
 			 LOCK = 7'd44,						// 7'b0101100
+			 LOCK_BUF = 7'd48,				// 7'b0110000
 			 UNLOCK = 7'd45,					// 7'b0101101
 			 FETCH_BUF_2 = 7'd46,			// 7'b0101110
 			 FETCH_BUF_3 = 7'd47,			// 7'b0101111
@@ -176,7 +177,8 @@ begin
 		CALC_BR_ALU: NS = DECIDE_BR;
 		DECIDE_BR: NS = PRE_FETCH;
 		PC_INC: NS = PRE_FETCH; // Increment PC
-		LOCK: // Get lock from arbiter
+		LOCK: NS = LOCK_BUF; // Get lock from arbiter
+		LOCK_BUF:
 		begin
 			if (locked == 1'b0)
 				NS = LOCK;
@@ -214,7 +216,7 @@ begin
 	case (S) // Change variables for each state
 		FSTART:
 		begin
-			PC <= 8'b1;
+			PC <= 8'b0;
 			IR <= 32'b0;
 			mem_address <= 8'b0;
 			mem_data <= 32'b0;
@@ -1182,6 +1184,25 @@ begin
 			ask_for_lock <= ask_for_lock;
 		end
 		LOCK:
+		begin
+			ask_for_lock <= 1'b1;
+			
+			PC <= PC;
+			IR <= IR;
+			mem_address <= mem_address;
+			mem_data <= mem_data;
+			mem_wren <= 1'b0;
+			alu_l_in <= alu_l_in;
+			alu_r_in <= alu_r_in;
+			alu_control <= alu_control;
+			reg_w_data <= reg_w_data;
+			reg_w_add <= reg_w_add;
+			reg_w_en <= 1'b0;
+			reg_rl_add <= reg_rl_add;
+			reg_rr_add <= reg_rr_add;
+			//ask_for_lock <= ask_for_lock;
+		end
+		LOCK_BUF:
 		begin
 			ask_for_lock <= 1'b1;
 			
